@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HC Present Dashboard — OPEX</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.8.6/jsrsasign-all-min.js"></script>
+<style>
+:root {
+  --bg: #0d1117;
+  --card: #161b22;
+  --card2: #1c2129;
+  --border: #30363d;
+  --border2: #21262d;
+  --accent: #f0a500;
+  --accent2: #d4890a;
+  --green: #3fb950;
+  --red: #f85149;
+  --blue: #58a6ff;
+  --purple: #bc8cff;
+  --orange: #ffa657;
+  --teal: #39d353;
+  --text: #e6edf3;
+  --muted: #7d8590;
+  --muted2: #484f58;
+  --header-h: 64px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+}
+
+/* ── HEADER ── */
+header {
+  height: var(--header-h);
+  background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 28px;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 4px 24px rgba(0,0,0,.4);
+}
+
+.oel-logo {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+  filter: brightness(1.1);
+}
+
+.logo-fallback {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--accent);
+  letter-spacing: 2px;
+}
+
+.logo-divider {
+  width: 1px;
+  height: 32px;
+  background: var(--border);
+  margin: 0 4px;
+}
+
+.header-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.header-sub {
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.hsp { flex: 1; }
+
+/* date selector */
+.date-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 6px 14px;
+}
+
+.date-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+#dateInput {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+}
+#dateInput::-webkit-calendar-picker-indicator {
+  filter: invert(70%) sepia(100%) saturate(400%) hue-rotate(10deg);
+  cursor: pointer;
+}
+
+.sync-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--card2);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .2s;
+}
+.sync-pill:hover { border-color: var(--accent); color: var(--accent); }
+.sync-pill.syncing { border-color: var(--blue); color: var(--blue); }
+.sync-pill.ok { border-color: var(--green); color: var(--green); }
+.sync-pill.err { border-color: var(--red); color: var(--red); }
+.sync-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.syncing .sync-dot { animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* ── STATUS BAR ── */
+.status-bar {
+  background: var(--card2);
+  border-bottom: 1px solid var(--border2);
+  padding: 8px 28px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 11px;
+}
+.sb-item { display: flex; align-items: center; gap: 5px; }
+.sb-dot { width: 7px; height: 7px; border-radius: 50%; }
+.sb-val { font-family: 'JetBrains Mono', monospace; font-weight: 500; }
+.sb-lbl { color: var(--muted); }
+.sb-sep { width: 1px; height: 14px; background: var(--border2); }
+
+/* ── MAIN ── */
+main {
+  padding: 24px 28px 120px;
+  max-width: 1800px;
+  margin: 0 auto;
+}
+
+/* ── LOADING / ERROR STATE ── */
+.state-box {
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--muted);
+}
+.state-box .icon { font-size: 48px; margin-bottom: 12px; }
+.state-box .msg { font-size: 15px; font-weight: 500; margin-bottom: 6px; color: var(--text); }
+.state-box .sub { font-size: 12px; }
+
+/* ── GRAND TOTAL KPI ROW ── */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.kpi-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 18px;
+  position: relative;
+  overflow: hidden;
+  transition: transform .2s, box-shadow .2s;
+}
+.kpi-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,.3); }
+.kpi-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+}
+.kpi-card.accent::before { background: var(--accent); }
+.kpi-card.green::before { background: var(--green); }
+.kpi-card.blue::before { background: var(--blue); }
+.kpi-card.purple::before { background: var(--purple); }
+.kpi-card.orange::before { background: var(--orange); }
+.kpi-card.red::before { background: var(--red); }
+
+.kpi-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1.8px;
+  color: var(--muted);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.kpi-val {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1;
+}
+.kpi-card.accent .kpi-val { color: var(--accent); }
+.kpi-card.green .kpi-val { color: var(--green); }
+.kpi-card.blue .kpi-val { color: var(--blue); }
+.kpi-card.purple .kpi-val { color: var(--purple); }
+.kpi-card.orange .kpi-val { color: var(--orange); }
+.kpi-card.red .kpi-val { color: var(--red); }
+.kpi-sub { font-size: 10px; color: var(--muted); margin-top: 4px; }
+
+/* ── SECTION HEADER ── */
+.section-hdr {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 28px 0 16px;
+}
+.section-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.section-line { flex: 1; height: 1px; background: linear-gradient(90deg, var(--border), transparent); }
+
+/* ── PROJECT GRID ── */
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 18px;
+}
+
+/* ── PROJECT CARD ── */
+.project-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: box-shadow .2s, border-color .2s;
+}
+.project-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent2), 0 12px 40px rgba(240,165,0,.08);
+}
+
+.project-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, var(--card2), var(--card));
+  border-bottom: 1px solid var(--border2);
+}
+
+.project-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.project-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: rgba(240,165,0,.12);
+  border: 1px solid rgba(240,165,0,.3);
+  color: var(--accent);
+}
+.project-badge.zero {
+  background: rgba(248,81,73,.08);
+  border-color: rgba(248,81,73,.2);
+  color: var(--red);
+}
+
+.dept-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.dept-table th {
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+  font-weight: 600;
+  padding: 8px 18px;
+  text-align: left;
+  background: rgba(255,255,255,.02);
+  border-bottom: 1px solid var(--border2);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.dept-table th:last-child { text-align: right; }
+
+.dept-table td {
+  padding: 9px 18px;
+  font-size: 12px;
+  border-bottom: 1px solid var(--border2);
+  transition: background .12s;
+}
+
+.dept-table tr:last-child td { border-bottom: none; }
+
+.dept-table tr:hover td { background: rgba(255,255,255,.03); }
+
+.dept-name {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.dept-present {
+  text-align: right;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.dept-present .num-present { color: var(--green); }
+.dept-present .num-zero { color: var(--muted2); }
+
+.dept-bar-cell {
+  padding: 0 18px 0 0;
+  width: 90px;
+}
+.mini-bar {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border2);
+  overflow: hidden;
+}
+.mini-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--green);
+  transition: width .6s cubic-bezier(.4,0,.2,1);
+}
+.mini-bar-fill.zero { background: var(--muted2); }
+
+.dept-table tfoot td {
+  font-weight: 700;
+  background: rgba(240,165,0,.05);
+  border-top: 1px solid rgba(240,165,0,.2);
+  border-bottom: none;
+  color: var(--accent);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  letter-spacing: .5px;
+}
+
+/* ── FLOOR TAG ── */
+.floor-tag {
+  font-size: 8px;
+  color: var(--muted2);
+  font-weight: 500;
+  letter-spacing: .5px;
+}
+
+/* ── FOOTER ── */
+footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(0deg, var(--bg) 60%, transparent);
+  padding: 12px 28px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+}
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.footer-txt {
+  font-size: 10px;
+  color: var(--muted2);
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+.opex-logo {
+  height: 32px;
+  width: auto;
+  object-fit: contain;
+  opacity: .7;
+  filter: grayscale(30%);
+}
+.opex-fallback {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  color: var(--muted);
+  text-transform: uppercase;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 10px;
+}
+
+/* toast */
+#toast {
+  position: fixed;
+  bottom: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 22px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .3s;
+}
+#toast.show { opacity: 1; }
+#toast.ok { background: rgba(63,185,80,.9); color: #fff; }
+#toast.err { background: rgba(248,81,73,.9); color: #fff; }
+#toast.info { background: rgba(88,166,255,.9); color: #fff; }
+#toast.warn { background: rgba(255,166,87,.9); color: #1a1a1a; }
+
+/* utility */
+.hidden { display: none !important; }
+@media(max-width:768px) {
+  .projects-grid { grid-template-columns: 1fr; }
+  header { padding: 0 14px; gap: 8px; }
+  .header-title { font-size: 14px; }
+  main { padding: 16px 14px 100px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <img src="oel.jpeg" class="oel-logo" alt="OEL" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+  <div class="logo-fallback" style="display:none">OEL</div>
+  <div class="logo-divider"></div>
+  <div>
+    <div class="header-title">HC Present Dashboard</div>
+    <div class="header-sub">Headcount Visibility · Project Wise</div>
+  </div>
+  <div class="hsp"></div>
+  <div class="date-wrap">
+    <span class="date-label">Date</span>
+    <input type="date" id="dateInput" onchange="onDateChange()">
+  </div>
+  <div class="sync-pill" id="syncPill" onclick="fetchData()">
+    <div class="sync-dot"></div>
+    <span id="syncTxt">Sync</span>
+  </div>
+</header>
+
+<!-- STATUS BAR -->
+<div class="status-bar" id="statusBar" style="display:none">
+  <div class="sb-item">
+    <div class="sb-dot" style="background:var(--blue)"></div>
+    <span class="sb-lbl">Showing:</span>
+    <span class="sb-val" id="sbDate" style="color:var(--blue)">—</span>
+  </div>
+  <div class="sb-sep"></div>
+  <div class="sb-item">
+    <div class="sb-dot" style="background:var(--green)"></div>
+    <span class="sb-lbl">Total Present:</span>
+    <span class="sb-val" id="sbTotal" style="color:var(--green)">—</span>
+  </div>
+  <div class="sb-sep"></div>
+  <div class="sb-item">
+    <div class="sb-dot" style="background:var(--accent)"></div>
+    <span class="sb-lbl">Active Projects:</span>
+    <span class="sb-val" id="sbProjects" style="color:var(--accent)">—</span>
+  </div>
+  <div class="sb-sep"></div>
+  <div class="sb-item">
+    <div class="sb-dot" style="background:var(--purple)"></div>
+    <span class="sb-lbl">Departments:</span>
+    <span class="sb-val" id="sbDepts" style="color:var(--purple)">—</span>
+  </div>
+  <div class="hsp"></div>
+  <span style="color:var(--muted2);font-size:10px" id="sbSource">—</span>
+</div>
+
+<!-- MAIN -->
+<main id="mainContent">
+  <div class="state-box" id="initialState">
+    <div class="icon">📊</div>
+    <div class="msg">Select a Date to Load Dashboard</div>
+    <div class="sub">Choose any date above — data will be fetched from Google Sheets</div>
+  </div>
+
+  <div class="state-box hidden" id="loadingState">
+    <div class="icon">⟳</div>
+    <div class="msg">Fetching data from Google Sheets…</div>
+    <div class="sub" id="loadingMsg">Connecting…</div>
+  </div>
+
+  <div class="state-box hidden" id="errorState">
+    <div class="icon">⚠</div>
+    <div class="msg" id="errorMsg">Could not load data</div>
+    <div class="sub">Check the date or try syncing again</div>
+  </div>
+
+  <!-- KPI SUMMARY -->
+  <div id="kpiSection" class="hidden">
+    <div class="kpi-row" id="kpiRow"></div>
+  </div>
+
+  <!-- PROJECT TABLES -->
+  <div id="dashSection" class="hidden">
+    <div class="section-hdr">
+      <div class="section-title">Project-wise Headcount Present</div>
+      <div class="section-line"></div>
+    </div>
+    <div class="projects-grid" id="projectsGrid"></div>
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">
+    <span class="footer-txt">Powered by OPEX Team</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <img src="opex.jpeg" class="opex-logo" alt="OPEX" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+    <div class="opex-fallback" style="display:none">OPEX</div>
+  </div>
+</footer>
+
+<div id="toast"></div>
+
+<script>
+/* ── CONFIG ── */
+const CONFIG = {
+  GS_MASTER_SHEET_ID: '1H8mbS-i1ASH7i47Ti5KhSnCsFsd_x5VIfrNNhSqs9jc',
+  GS_HR_SHEET_ID:     '1KoubCj2HBZ5h9eA_0X9qS3B_OP1h1epEI1uvEokmeOI',
+  CLIENT_EMAIL: 'manpower-management@rising-guide-431019-s8.iam.gserviceaccount.com',
+  PRIVATE_KEY: `-----BEGIN PRIVATE KEY-----
+MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQCopNHe4VidsEIS
+0QypTmY88AQz2DylNfca0ilg8x836qliEMLASoKG1BxGYLLsxek9WrTAOWBnUo25
+8m6hlgyMGqgcJW1ML6j+Q2NFT7KHR9tDQBG4Lm4X+0w0ITHvPevjuEYOvW63LEZb
+yN0Z1ITIhvPtDHFb5NN58DQ7UdpCBmuN+m/CFmYY+z0EG4ihzjYS/wzVtAB9gvMU
+4VpEXKtpNS3L6k2PoaNxIUqy3aHIBZbVtqWGalNxyPzZgMV16XG1MbwiOhQ9eB53
+MxMsW7prY21Cg0gj7cpeABkfEU4ZeVInNj6SzQewKtwNS2gEBbpZG0VcBJLbi3et
+RsOeUNkjAgMBAAECggEAEMsI0wbhiiJJEhKbDijuaVcFNBxuPY1YI+WVlT/gdfL6
+FvfQTNGemcp5XlC2wHkctq1XnmSYQvGnh0Kq3ZBRg4oL/3GCprmAPIF9WyOKhYoU
+PWgd25dUAzNU7UP48vfZi32IDGO0qKzR/MXNrorJBibaF1rL1vi8TkIrEVUfRL+x
+cEGlEP/vk89bAM6mDA9Irxj56IlnUxiiOlwILcRM1+7jQY4zg12pxWFmBO8wa1YJ
+ltIpMJ+2725Fprz6Xvh75y4aRLbwDCS7XQBtHj/Qy1WQLTeYBlLPsgasg8u93zN5
+QCok7PED0vaoarm/et4tckSUXkRTUNBrM+ZyF6RtIQKBgQDeVW+qHRxz6yGj4qQI
+/5u5Pb2jp4NbKSLnTqP8AZgsbl8i3i+JI3v9CJmzY7LhkydeurubYnXb0yp/I6e7
+GRqAQKjifX+D3DT/GHih3mIu3N5hU1XavGZxREgwKAyn3cxN/NpAODoFuPPYlQk5
+Tcndwwihn62sSVTaL40Rm7a4GwKBgQDCLiS6Zmh3kDJMoVzeYUMrYaAlQdSzlsAG
+AhdL1OlEhXo0BZnuVamlWPMZN+WUGA6XALU2wDPgZB9Z0QwSSd346/GIBI3Qg5hY
+LqS0q9lqe1zRdFNFyaTEoUZdI5IeE3QyY8/8gbnQJbhVFmsMt2yR9SjlXqLwucPp
+qKd+diWDmQKBgQCij7lbmnlpUCyClX32jl4f7UKxXBOxHbzFfzxrUAchxXmOFwKO
+tQE9G4K2JVlvkZahrsrpa+5c0mMqHrnPFSXJTH2vTK9ljCa7tfrN77m+JgP7CWGm
+00Xb318gxseqHYP6KbyyY+oYsQip/R6HZZcJrEatVgE4DU4bUdVFYKMSrQKBgQCa
+4VU4PBCdNS15g8dgNLHvuymSLgTqzZYR9L8CJCt/FPvY3JLf0AHFOcKE3dnHGr0g
+Ylcn+XwnQZTj/eKj/7kGH6OB+yfmJeBwjZuf4+ZBkW4CPsdgxaofkAdgqMuWI6wt
+uQEfBZXg2QVDEOOHvBHkBWh+MtLCMVl7WKNoMfJQGQKBgQCVkGgDp6Iu3CtS/87L
+urT7qEJ0GnH9IAOqdfz2VJA/6QVGk3bT4mPqalFARYqRM80Uh/urm4sY5OR4wUXY
+5I9PSevXxxtDw2lPvqGdNMJ/MZJVGRfnQYT+vCDzgAg6NSmT6Z0GvapuRVsFU6yd
+Y0yA/4t5p+2QpkyTA8isO0aODA==
+-----END PRIVATE KEY-----`,
+
+  /* project → dept → HC (from original code) */
+  LINE_DEPT_HC: {
+    'Quectel':           { 'production smt':11,'quality smt':2,'quality fa2':1,'store':1,'smt testing':36,'Engineering':1 },
+    'Kozen':             { 'production asm fa2':93,'TRC':1,'Engineering':2,'quality fa2':8,'store':2 },
+    'Realme -Power Bank':{ 'production asm fa1':83,'TRC':1,'store':1,'quality fa1':6,'Engineering':2 },
+    'Realme -Pearl':     { 'production asm fa1':186,'quality fa1':24,'store':2,'TRC':2,'Engineering':2,'IT':1 },
+    'Realme-SW':         { 'production asm fa2':67,'quality fa3':12,'store':2,'TRC':1,'Engineering':2 },
+    'Acton':             {},
+    'Alpha-JIDU6201':    { 'production mi':26,'quality mi':3,'TRC':2,'production smt':10,'quality smt':4,'Engineering':4 },
+    'ARC-RMDU':          { 'production mi':25,'quality mi':4,'TRC':2,'production smt':19,'quality smt':9,'Engineering':4,'IT':1 },
+    'Vivo-BTE732':       { 'production asm fa3':155,'quality fa3':16.5,'store':2,'TRC':2,'Engineering':3,'IT':1 },
+    'BharatPe':          {},
+    'Xiaomi-N65C':       { 'production asm fa3':83,'quality fa3':0,'store':1,'Engineering':0 },
+    'Realme-Kanon':      { 'production asm fa3':95,'quality fa3':12.5,'store':1,'Engineering':3,'IT':1 },
+    'Qubo':              { 'production asm fa3':36,'production smt':79,'quality smt':0,'quality fa3':5.5,'store':2,'TRC':1,'Engineering':2,'IT':1 },
+    'Boat':              { 'production asm fa3':71,'quality fa3':7.5,'quality smt':0,'store':1,'TRC':1,'Engineering':2 },
+    'TP Link- Router':   { 'production asm fa3':59,'production mi':35,'production smt':7,'quality smt':3,'quality mi':3,'quality fa3':9,'store':4,'TRC':1,'Engineering':2,'IT':1 },
+    'TP Link- Switch':   { 'production mi':21,'production smt':7,'quality smt':3,'quality mi':2,'quality fa3':4,'store':1,'TRC':1,'Engineering':2 },
+    'Nothing':           { 'production asm fa3':0,'IT':10 },
+    'Realme-PCBA':       {}
+  },
+
+  DEPT_LABELS: {
+    'admin & utility':    'Admin & Utility',
+    'Engineering':        'Engineering',
+    'HR':                 'HR',
+    'IT':                 'IT',
+    'production mi':      'Production MI',
+    'TRC':                'TRC',
+    'production asm fa1': 'Production ASM FA1',
+    'production asm fa2': 'Production ASM FA2',
+    'production asm fa3': 'Production ASM FA3',
+    'production smt':     'Production SMT',
+    'quality smt':        'Quality SMT',
+    'quality lab':        'Quality Lab',
+    'quality mi':         'Quality MI',
+    'quality fa1':        'Quality FA1',
+    'quality fa2':        'Quality FA2',
+    'quality fa3':        'Quality FA3',
+    'store':              'Store',
+    'smt testing':        'SMT Testing'
+  },
+
+  DEPT_SHEETS: [
+    'Admin & Utility','HR','IT','Production MI','TRC','Engineering',
+    'Production asm FA1','Production asm FA2','Production asm FA3',
+    'Production SMT','SMT Testing','Quality LAB','Quality SMT','Quality MI',
+    'Quality FA1','Quality FA2','Quality FA3','Store'
+  ],
+
+  SHEET_CONFIG: {
+    'admin & utility':    { id:0, name:1, proj:4, stage:6, shift:5 },
+    'production mi':      { id:0, name:1, proj:4, stage:5, shift:6 },
+    'production asm fa1': { id:0, name:1, proj:4, stage:5, shift:6 },
+    'production asm fa2': { id:0, name:1, proj:4, stage:5, shift:6 },
+    'production asm fa3': { id:0, name:1, proj:4, stage:5, shift:6 },
+    'production smt':     { id:0, name:1, proj:4, shift:5, stage:6 },
+    'smt testing':        { id:0, name:1, proj:4, shift:5, stage:6 }
+  }
+};
+
+/* ── HELPERS ── */
+function normDept(v) {
+  const s = String(v||'').toLowerCase().trim();
+  if (s==='production fa-3'||s==='production fa3') return 'production asm fa3';
+  if (s==='production fa-1'||s==='production fa1') return 'production asm fa1';
+  if (s==='production fa-2'||s==='production fa2') return 'production asm fa2';
+  return s;
+}
+function normStatus(v) {
+  const u = String(v||'').trim().toUpperCase().replace(/[\/\s]/g,'');
+  if (u==='P'||u==='H'||u==='HD'||u==='HALF') return 'present';
+  if (u==='WOFF'||u==='W/OFF') return 'woff';
+  return 'absent';
+}
+function normLine(v) { return String(v||'').toLowerCase().replace(/\s+/g,' ').trim(); }
+
+/* Canonical project name — collapses known aliases into one key */
+const PROJECT_ALIASES = {
+  'realme-canon':  'Realme-Kanon',
+  'realme kanon':  'Realme-Kanon',
+  'realme-kanon':  'Realme-Kanon',
+  'realme kanon ': 'Realme-Kanon',
+  // add more aliases here as needed e.g.:
+  // 'tp-link router': 'TP Link- Router',
+};
+function canonicalProject(raw) {
+  const key = normLine(raw);
+  // Check alias table first
+  for (const [alias, canonical] of Object.entries(PROJECT_ALIASES)) {
+    if (normLine(alias) === key) return canonical;
+  }
+  // Fall back to the raw trimmed value
+  return raw.trim();
+}
+function normId(v) { return String(v||'').trim().toUpperCase(); }
+
+function parseSheetDate(cell) {
+  if (cell instanceof Date) return cell;
+  if (typeof cell==='number') return new Date((cell-25569)*86400*1000);
+  const raw = String(cell||'').trim();
+  if (!raw) return null;
+  const m2 = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m2) return new Date(+m2[1],+m2[2]-1,+m2[3]);
+  const m1 = raw.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+  if (m1) {
+    const yr = m1[3].length===2?'20'+m1[3]:m1[3];
+    const f=+m1[1], s=+m1[2];
+    if (f>12) return new Date(yr,s-1,f);
+    if (s>12) return new Date(yr,f-1,s);
+    return new Date(yr,f-1,s);
+  }
+  const dt = new Date(raw);
+  return isNaN(dt)?null:dt;
+}
+
+function findTodayCol(headerRow, dateKey) {
+  const [ty,tm,td] = dateKey.split('-').map(Number);
+  for (let ci=0;ci<headerRow.length;ci++) {
+    const cell=headerRow[ci];
+    if (!cell) continue;
+    let d=null;
+    if (cell instanceof Date) d=cell;
+    else if (typeof cell==='number') d=new Date((cell-25569)*86400*1000);
+    else if (typeof cell==='string') d=parseSheetDate(cell);
+    if (d && d.getFullYear()===ty && d.getMonth()+1===tm && d.getDate()===td) return ci;
+  }
+  return -1;
+}
+
+function fmtHRTabName(dateKey) {
+  const [y,m,d]=dateKey.split('-');
+  return `${m}/${d}/${y}`;
+}
+
+function el(id){ return document.getElementById(id); }
+
+function showToast(msg, type='info') {
+  const t=el('toast');
+  t.textContent=msg; t.className='show '+type;
+  clearTimeout(t._t);
+  t._t=setTimeout(()=>{ t.className=''; },3200);
+}
+
+function setSyncState(state, txt) {
+  const p=el('syncPill'), s=el('syncTxt');
+  p.className='sync-pill '+state;
+  s.textContent=txt;
+}
+
+/* ── AUTH ── */
+async function getAccessToken() {
+  const now=Math.floor(Date.now()/1000);
+  const header=btoa(JSON.stringify({alg:'RS256',typ:'JWT'})).replace(/=/g,'').replace(/\+/g,'-').replace(/\//g,'_');
+  const claim=btoa(JSON.stringify({
+    iss:CONFIG.CLIENT_EMAIL,
+    scope:'https://www.googleapis.com/auth/spreadsheets.readonly',
+    aud:'https://oauth2.googleapis.com/token',
+    exp:now+3600, iat:now
+  })).replace(/=/g,'').replace(/\+/g,'-').replace(/\//g,'_');
+  const msg=header+'.'+claim;
+  const sig=new KJUR.crypto.Signature({alg:'SHA256withRSA'});
+  sig.init(CONFIG.PRIVATE_KEY); sig.updateString(msg);
+  const sigHex=sig.sign();
+  const sigB64=btoa(String.fromCharCode(...sigHex.match(/.{2}/g).map(h=>parseInt(h,16)))).replace(/=/g,'').replace(/\+/g,'-').replace(/\//g,'_');
+  const jwt=msg+'.'+sigB64;
+  const resp=await fetch('https://oauth2.googleapis.com/token',{
+    method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'},
+    body:`grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=${jwt}`
+  });
+  const data=await resp.json();
+  if (!data.access_token) throw new Error('Token error: '+JSON.stringify(data));
+  return data.access_token;
+}
+
+async function sheetRange(token, sheetId, range) {
+  const url=`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(range)}?majorDimension=ROWS`;
+  const r=await fetch(url,{headers:{Authorization:'Bearer '+token}});
+  const d=await r.json();
+  if (d.error) throw new Error(`Sheets error: ${d.error.message} [${range}]`);
+  return d.values||[];
+}
+
+function formatRange(sheetName, cells) {
+  const name=String(sheetName||'').trim();
+  const needsQ=/[\s'!"#\$%&\(\)\*\+,\-\.\/\:\;<=>\?@\[\]^`\{\|\}~]/.test(name)||/^\d/.test(name);
+  if (!needsQ) return `${name}!${cells}`;
+  return `'${name.replace(/'/g,"''")}'!${cells}`;
+}
+
+/* ── MAIN DATA FETCH ── */
+let curDateKey = '';
+
+function onDateChange() {
+  const v=el('dateInput').value;
+  if (!v) return;
+  curDateKey=v;
+  fetchData();
+}
+
+async function fetchData() {
+  if (!curDateKey) { showToast('Select a date first','warn'); return; }
+
+  // UI → loading
+  ['initialState','errorState','kpiSection','dashSection'].forEach(id=>el(id).classList.add('hidden'));
+  el('loadingState').classList.remove('hidden');
+  el('statusBar').style.display='none';
+  setSyncState('syncing','⟳ Syncing…');
+
+  el('loadingMsg').textContent='Authenticating with Google…';
+
+  try {
+    const token = await getAccessToken();
+    el('loadingMsg').textContent = 'Fetching HR attendance…';
+
+    /* 1. Build HR map (who punched in) */
+    const hrTabName = fmtHRTabName(curDateKey);
+    const hrMap = {};
+
+    // list tabs to check if this date's sheet exists
+    const metaUrl=`https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.GS_HR_SHEET_ID}?fields=sheets.properties`;
+    const metaResp=await fetch(metaUrl,{headers:{Authorization:'Bearer '+token}});
+    const metaData=await metaResp.json();
+    const tabNames=(metaData.sheets||[]).map(s=>s.properties.title);
+
+    if (tabNames.includes(hrTabName)) {
+      try {
+        const hrRows = await sheetRange(token, CONFIG.GS_HR_SHEET_ID, formatRange(hrTabName,'A1:V2000'));
+        hrRows.slice(2).forEach(row => {
+          if (!row||row.length<5) return;
+          const code=normId(row[2]);
+          if (!code||code==='EMPLOYEE CODE') return;
+          const inTime=String(row[14]||'').trim();
+          hrMap[code]={ inTime, present: !!(inTime && inTime!=='-' && inTime!=='') };
+        });
+      } catch(e){ console.warn('HR fetch warn:',e.message); }
+    }
+
+    el('loadingMsg').textContent='Fetching department sheets…';
+
+    /* 2. Read all dept sheets — collect (empId → {dept, project, status}) */
+    // We'll count: for each project, for each dept, how many present
+    // project+dept present count
+    const presenceMap = {}; // projKey → deptKey → count
+
+    for (const sheetName of CONFIG.DEPT_SHEETS) {
+      const normSheetDept = normDept(sheetName);
+      let rows=[];
+      try {
+        rows=await sheetRange(token, CONFIG.GS_MASTER_SHEET_ID, formatRange(sheetName,'A1:CZ500'));
+      } catch(e){ continue; }
+      if (!rows||rows.length<2) continue;
+
+      const header=rows[0];
+      const sc=CONFIG.SHEET_CONFIG[normSheetDept] || {id:0,name:1,proj:4,stage:5,shift:6};
+      const projIdx = sc.proj??4;
+      const selectedDateCol = findTodayCol(header, curDateKey);
+
+      rows.slice(1).forEach(row => {
+        if (!row[sc.id]||String(row[sc.id]).trim()==='') return;
+        const id=normId(row[sc.id]);
+        if (['EMPLOYE ID','EMPID','`'].includes(id)) return;
+        const name=String(row[sc.name||1]||'').trim();
+        if (!name) return;
+
+        const projRaw=projIdx>=0 ? String(row[projIdx]||'').trim() : '';
+        if (!projRaw) return; // skip unassigned
+
+        // Determine attendance status
+        const attVal=(selectedDateCol>=0&&selectedDateCol<row.length)?row[selectedDateCol]:null;
+        let status=normStatus(attVal);
+
+        // Cross-check with HR punch
+        const hr=hrMap[id];
+        if (hr && status==='absent') status='present'; // if they punched, count as present
+        if (hr && hr.present && status==='absent') status='present';
+        if (status==='woff') return; // skip week-offs
+
+        if (status!=='present') return; // only count present
+
+        // canonical project key — merges aliases like Realme-Canon → Realme-Kanon
+        const projKey=canonicalProject(projRaw);
+        const deptKey=normSheetDept;
+        if (!presenceMap[projKey]) presenceMap[projKey]=Object.create(null);
+        presenceMap[projKey][deptKey]=(presenceMap[projKey][deptKey]||0)+1;
+      });
+    }
+
+    el('loadingState').classList.add('hidden');
+    renderDashboard(presenceMap, hrTabName, Object.keys(hrMap).length);
+    setSyncState('ok','✓ Live');
+    showToast(`Data loaded for ${formatDisplayDate(curDateKey)}`,'ok');
+
+  } catch(err) {
+    console.error(err);
+    el('loadingState').classList.add('hidden');
+    el('errorState').classList.remove('hidden');
+    el('errorMsg').textContent='Error: '+err.message;
+    setSyncState('err','✗ Error');
+    showToast('Failed to load: '+err.message,'err');
+  }
+}
+
+function formatDisplayDate(key) {
+  const d=new Date(key+'T00:00:00');
+  return d.toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'long',year:'numeric'});
+}
+
+/* ── RENDER ── */
+function renderDashboard(presenceMap, hrTabName, hrCount) {
+  // Merge with LINE_DEPT_HC — make sure all configured projects are shown
+  const allProjects = new Set([...Object.keys(CONFIG.LINE_DEPT_HC), ...Object.keys(presenceMap)]);
+
+  let grandTotal=0;
+  let activeProjects=0;
+  const allDepts=new Set();
+
+  // Build per-project data
+  const projectData=[]; // {name, depts:[{dept,label,present,hc}], total}
+
+  for (const projName of allProjects) {
+    const configDepts=CONFIG.LINE_DEPT_HC[projName]||{};
+    const actualPresence=presenceMap[projName]||{};
+
+    // Union of depts from config + actual presence
+    const deptSet=new Set([...Object.keys(configDepts),...Object.keys(actualPresence)]);
+    if (deptSet.size===0) continue; // skip empty projects with no config
+
+    const depts=[];
+    let projTotal=0;
+
+    for (const deptKey of deptSet) {
+      const present=actualPresence[deptKey]||0;
+      const hc=configDepts[deptKey]||0;
+      const label=CONFIG.DEPT_LABELS[deptKey]||deptKey;
+      depts.push({dept:deptKey, label, present, hc});
+      projTotal+=present;
+      if (present>0) allDepts.add(deptKey);
+    }
+
+    // Sort depts by present desc
+    depts.sort((a,b)=>b.present-a.present||a.label.localeCompare(b.label));
+    grandTotal+=projTotal;
+    if (projTotal>0) activeProjects++;
+    projectData.push({name:projName, depts, total:projTotal});
+  }
+
+  // Sort projects: those with presence first, then alphabetically
+  projectData.sort((a,b)=>{
+    if (b.total!==a.total) return b.total-a.total;
+    return a.name.localeCompare(b.name);
+  });
+
+  // Update status bar
+  el('statusBar').style.display='flex';
+  el('sbDate').textContent=formatDisplayDate(curDateKey);
+  el('sbTotal').textContent=grandTotal;
+  el('sbProjects').textContent=activeProjects+' / '+projectData.length;
+  el('sbDepts').textContent=allDepts.size;
+  el('sbSource').textContent=hrTabName+' · '+hrCount+' HR records';
+
+  // KPI row
+  el('kpiSection').classList.remove('hidden');
+  const kpiColors=['accent','green','blue','purple','orange'];
+  const topProjects=projectData.filter(p=>p.total>0).slice(0,5);
+  el('kpiRow').innerHTML=`
+    <div class="kpi-card accent">
+      <div class="kpi-label">Grand Total Present</div>
+      <div class="kpi-val">${grandTotal}</div>
+      <div class="kpi-sub">Across all projects</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-label">Active Projects</div>
+      <div class="kpi-val">${activeProjects}</div>
+      <div class="kpi-sub">of ${projectData.length} total</div>
+    </div>
+    <div class="kpi-card blue">
+      <div class="kpi-label">Departments Active</div>
+      <div class="kpi-val">${allDepts.size}</div>
+      <div class="kpi-sub">with ≥1 present</div>
+    </div>
+    ${topProjects.slice(0,2).map((p,i)=>`
+    <div class="kpi-card ${kpiColors[i+3]}">
+      <div class="kpi-label">Top: ${p.name}</div>
+      <div class="kpi-val">${p.total}</div>
+      <div class="kpi-sub">Present today</div>
+    </div>`).join('')}
+  `;
+
+  // Project tables
+  el('dashSection').classList.remove('hidden');
+  const maxPresent=Math.max(...projectData.map(p=>p.total),1);
+
+  el('projectsGrid').innerHTML=projectData.map(proj=>{
+    const maxInProj=Math.max(...proj.depts.map(d=>d.present),1);
+    const rowsHTML=proj.depts.map(d=>{
+      const barW=d.present>0?Math.round((d.present/maxInProj)*100):0;
+      const numClass=d.present>0?'num-present':'num-zero';
+      return `<tr>
+        <td class="dept-name">
+          ${d.label}
+        </td>
+        <td class="dept-bar-cell">
+          <div class="mini-bar">
+            <div class="mini-bar-fill${d.present===0?' zero':''}" style="width:${barW}%"></div>
+          </div>
+        </td>
+        <td class="dept-present"><span class="${numClass}">${d.present}</span></td>
+      </tr>`;
+    }).join('');
+
+    const badgeClass=proj.total===0?'zero':'';
+    return `<div class="project-card">
+      <div class="project-header">
+        <div class="project-name">${proj.name}</div>
+        <div class="project-badge ${badgeClass}">${proj.total}</div>
+      </div>
+      <table class="dept-table">
+        <thead><tr>
+          <th>Department</th>
+          <th style="width:90px">—</th>
+          <th style="text-align:right">Present</th>
+        </tr></thead>
+        <tbody>${rowsHTML}</tbody>
+        <tfoot><tr>
+          <td colspan="2">Total</td>
+          <td style="text-align:right">${proj.total}</td>
+        </tr></tfoot>
+      </table>
+    </div>`;
+  }).join('');
+}
+
+/* ── INIT ── */
+(function init(){
+  // Default date = today
+  const today=new Date().toISOString().slice(0,10);
+  el('dateInput').value=today;
+  curDateKey=today;
+
+  // Preflight auth check
+  getAccessToken()
+    .then(()=>{ setSyncState('ok','Connected'); })
+    .catch(()=>{ setSyncState('err','Auth error'); });
+})();
+</script>
+</body>
+</html>
