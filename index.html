@@ -600,14 +600,23 @@ urT7qEJ0GnH9IAOqdfz2VJA/6QVGk3bT4mPqalFARYqRM80Uh/urm4sY5OR4wUXY
 Y0yA/4t5p+2QpkyTA8isO0aODA==
 -----END PRIVATE KEY-----`,
 
-  /* project → dept → HC (from original code) */
+  /* Canonical project list — ONLY these appear as dashboard cards.
+     Anything read from sheets not resolving to one of these is silently ignored. */
+  VALID_PROJECTS: [
+    'Quectel','Kozen','Realme -Power Bank','Realme -Pearl','Realme-SW',
+    'Accton','Alpha-JIDU6201','ARC-RMDU','Vivo-BTE732','BharatPe',
+    'Xiaomi-N65C','Realme-Kanon','Qubo','Boat',
+    'TP Link- Router','TP Link- Switch','Nothing'
+  ],
+
+  /* project → dept → HC */
   LINE_DEPT_HC: {
     'Quectel':           { 'production smt':11,'quality smt':2,'quality fa2':1,'store':1,'smt testing':36,'Engineering':1 },
     'Kozen':             { 'production asm fa2':93,'TRC':1,'Engineering':2,'quality fa2':8,'store':2 },
     'Realme -Power Bank':{ 'production asm fa1':83,'TRC':1,'store':1,'quality fa1':6,'Engineering':2 },
     'Realme -Pearl':     { 'production asm fa1':186,'quality fa1':24,'store':2,'TRC':2,'Engineering':2,'IT':1 },
     'Realme-SW':         { 'production asm fa2':67,'quality fa3':12,'store':2,'TRC':1,'Engineering':2 },
-    'Acton':             {},
+    'Accton':            {},
     'Alpha-JIDU6201':    { 'production mi':26,'quality mi':3,'TRC':2,'production smt':10,'quality smt':4,'Engineering':4 },
     'ARC-RMDU':          { 'production mi':25,'quality mi':4,'TRC':2,'production smt':19,'quality smt':9,'Engineering':4,'IT':1 },
     'Vivo-BTE732':       { 'production asm fa3':155,'quality fa3':16.5,'store':2,'TRC':2,'Engineering':3,'IT':1 },
@@ -618,8 +627,7 @@ Y0yA/4t5p+2QpkyTA8isO0aODA==
     'Boat':              { 'production asm fa3':71,'quality fa3':7.5,'quality smt':0,'store':1,'TRC':1,'Engineering':2 },
     'TP Link- Router':   { 'production asm fa3':59,'production mi':35,'production smt':7,'quality smt':3,'quality mi':3,'quality fa3':9,'store':4,'TRC':1,'Engineering':2,'IT':1 },
     'TP Link- Switch':   { 'production mi':21,'production smt':7,'quality smt':3,'quality mi':2,'quality fa3':4,'store':1,'TRC':1,'Engineering':2 },
-    'Nothing':           { 'production asm fa3':0,'IT':10 },
-    'Realme-PCBA':       {}
+    'Nothing':           { 'production asm fa3':0,'IT':10 }
   },
 
   DEPT_LABELS: {
@@ -677,23 +685,40 @@ function normStatus(v) {
 }
 function normLine(v) { return String(v||'').toLowerCase().replace(/\s+/g,' ').trim(); }
 
-/* Canonical project name — collapses known aliases into one key */
+/* Canonical project name — collapses known aliases into one key.
+   Returns null if the value is not a recognised project (dept names, blanks, etc.) */
 const PROJECT_ALIASES = {
-  'realme-canon':  'Realme-Kanon',
-  'realme kanon':  'Realme-Kanon',
-  'realme-kanon':  'Realme-Kanon',
-  'realme kanon ': 'Realme-Kanon',
-  // add more aliases here as needed e.g.:
-  // 'tp-link router': 'TP Link- Router',
+  'realme-canon':       'Realme-Kanon',
+  'realme canon':       'Realme-Kanon',
+  'realme-kanon':       'Realme-Kanon',
+  'realme kanon':       'Realme-Kanon',
+  'acton':              'Accton',
+  'accton':             'Accton',
+  'tp link router':     'TP Link- Router',
+  'tp link-router':     'TP Link- Router',
+  'tp link switch':     'TP Link- Switch',
+  'tp link-switch':     'TP Link- Switch',
+  'realme power bank':  'Realme -Power Bank',
+  'realme-power bank':  'Realme -Power Bank',
+  'realme pearl':       'Realme -Pearl',
+  'realme-pearl':       'Realme -Pearl',
 };
+
+// Build a normalised->canonical lookup from the whitelist itself
+const _validNorm = {};
+CONFIG.VALID_PROJECTS.forEach(p => { _validNorm[normLine(p)] = p; });
+
 function canonicalProject(raw) {
+  if (!raw || !raw.trim()) return null;
   const key = normLine(raw);
-  // Check alias table first
+  // 1. Direct match against whitelist (normalised)
+  if (_validNorm[key]) return _validNorm[key];
+  // 2. Alias table
   for (const [alias, canonical] of Object.entries(PROJECT_ALIASES)) {
     if (normLine(alias) === key) return canonical;
   }
-  // Fall back to the raw trimmed value
-  return raw.trim();
+  // 3. Not a known project — reject (prevents FA2, FA3, dept names leaking in as cards)
+  return null;
 }
 function normId(v) { return String(v||'').trim().toUpperCase(); }
 
@@ -879,8 +904,9 @@ async function fetchData() {
 
         if (status!=='present') return; // only count present
 
-        // canonical project key — merges aliases like Realme-Canon → Realme-Kanon
+        // canonical project key — returns null for dept names / unknown values
         const projKey=canonicalProject(projRaw);
+        if (!projKey) return; // not a recognised project — skip
         const deptKey=normSheetDept;
         if (!presenceMap[projKey]) presenceMap[projKey]=Object.create(null);
         presenceMap[projKey][deptKey]=(presenceMap[projKey][deptKey]||0)+1;
@@ -909,8 +935,8 @@ function formatDisplayDate(key) {
 
 /* ── RENDER ── */
 function renderDashboard(presenceMap, hrTabName, hrCount) {
-  // Merge with LINE_DEPT_HC — make sure all configured projects are shown
-  const allProjects = new Set([...Object.keys(CONFIG.LINE_DEPT_HC), ...Object.keys(presenceMap)]);
+  // Only show whitelisted projects — never allow unknown strings from sheets to create cards
+  const allProjects = CONFIG.VALID_PROJECTS;
 
   let grandTotal=0;
   let activeProjects=0;
