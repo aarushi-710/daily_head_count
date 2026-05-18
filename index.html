@@ -862,8 +862,7 @@ async function fetchData() {
         if (!row[sc.id]||String(row[sc.id]).trim()==='') return;
         const id=normId(row[sc.id]);
         if (['EMPLOYE ID','EMPID','`'].includes(id)) return;
-        const name=String(row[sc.name||1]||'').trim();
-        if (!name) return;
+        // Name is optional — employee ID alone is sufficient to count presence
 
         const projRaw=projIdx>=0 ? String(row[projIdx]||'').trim() : '';
         if (!projRaw) return; // skip unassigned
