@@ -606,37 +606,38 @@ Y0yA/4t5p+2QpkyTA8isO0aODA==
     'Quectel','Kozen','Realme -Power Bank','Realme -Pearl','Realme-SW',
     'Accton','Alpha-JIDU6201','ARC-RMDU','Vivo-BTE732','BharatPe',
     'Xiaomi-N65C','Realme-Kanon','Qubo','Boat',
-    'TP Link- Router','TP Link- Switch','Nothing'
+    'TP Link- Router','TP Link- Switch','Nothing','Realme-PCBA'
   ],
 
   /* project → dept → HC */
   LINE_DEPT_HC: {
-    'Quectel':           { 'production smt':11,'quality smt':2,'quality fa2':1,'store':1,'smt testing':36,'Engineering':1 },
-    'Kozen':             { 'production asm fa2':93,'TRC':1,'Engineering':2,'quality fa2':8,'store':2 },
-    'Realme -Power Bank':{ 'production asm fa1':83,'TRC':1,'store':1,'quality fa1':6,'Engineering':2 },
-    'Realme -Pearl':     { 'production asm fa1':186,'quality fa1':24,'store':2,'TRC':2,'Engineering':2,'IT':1 },
-    'Realme-SW':         { 'production asm fa2':67,'quality fa3':12,'store':2,'TRC':1,'Engineering':2 },
+    'Quectel':           { 'production smt':11,'quality smt':2,'quality fa2':1,'store':1,'smt testing':36,'engineering':1 },
+    'Kozen':             { 'production asm fa2':93,'trc':1,'engineering':2,'quality fa2':8,'store':2 },
+    'Realme -Power Bank':{ 'production asm fa1':83,'trc':1,'store':1,'quality fa1':6,'engineering':2 },
+    'Realme -Pearl':     { 'production asm fa1':186,'quality fa1':24,'store':2,'trc':2,'engineering':2,'it':1 },
+    'Realme-SW':         { 'production asm fa2':67,'quality fa3':12,'store':2,'trc':1,'engineering':2 },
+    'Realme-PCBA':       { 'production asm fa2':67,'quality fa3':12,'store':2,'trc':1,'engineering':2 },
     'Accton':            {},
-    'Alpha-JIDU6201':    { 'production mi':26,'quality mi':3,'TRC':2,'production smt':10,'quality smt':4,'Engineering':4 },
-    'ARC-RMDU':          { 'production mi':25,'quality mi':4,'TRC':2,'production smt':19,'quality smt':9,'Engineering':4,'IT':1 },
-    'Vivo-BTE732':       { 'production asm fa3':155,'quality fa3':16.5,'store':2,'TRC':2,'Engineering':3,'IT':1 },
+    'Alpha-JIDU6201':    { 'production mi':26,'quality mi':3,'trc':2,'production smt':10,'quality smt':4,'engineering':4 },
+    'ARC-RMDU':          { 'production mi':25,'quality mi':4,'trc':2,'production smt':19,'quality smt':9,'engineering':4,'it':1 },
+    'Vivo-BTE732':       { 'production asm fa3':155,'quality fa3':16.5,'store':2,'trc':2,'engineering':3,'it':1 },
     'BharatPe':          {},
-    'Xiaomi-N65C':       { 'production asm fa3':83,'quality fa3':0,'store':1,'Engineering':0 },
-    'Realme-Kanon':      { 'production asm fa3':95,'quality fa3':12.5,'store':1,'Engineering':3,'IT':1 },
-    'Qubo':              { 'production asm fa3':36,'production smt':79,'quality smt':0,'quality fa3':5.5,'store':2,'TRC':1,'Engineering':2,'IT':1 },
-    'Boat':              { 'production asm fa3':71,'quality fa3':7.5,'quality smt':0,'store':1,'TRC':1,'Engineering':2 },
-    'TP Link- Router':   { 'production asm fa3':59,'production mi':35,'production smt':7,'quality smt':3,'quality mi':3,'quality fa3':9,'store':4,'TRC':1,'Engineering':2,'IT':1 },
-    'TP Link- Switch':   { 'production mi':21,'production smt':7,'quality smt':3,'quality mi':2,'quality fa3':4,'store':1,'TRC':1,'Engineering':2 },
-    'Nothing':           { 'production asm fa3':0,'IT':10 }
+    'Xiaomi-N65C':       { 'production asm fa3':83,'quality fa3':0,'store':1,'engineering':0 },
+    'Realme-Kanon':      { 'production asm fa3':95,'quality fa3':12.5,'store':1,'engineering':3,'it':1 },
+    'Qubo':              { 'production asm fa3':36,'production smt':79,'quality smt':0,'quality fa3':5.5,'store':2,'trc':1,'engineering':2,'it':1 },
+    'Boat':              { 'production asm fa3':71,'quality fa3':7.5,'quality smt':0,'store':1,'trc':1,'engineering':2 },
+    'TP Link- Router':   { 'production asm fa3':59,'production mi':35,'production smt':7,'quality smt':3,'quality mi':3,'quality fa3':9,'store':4,'trc':1,'engineering':2,'it':1 },
+    'TP Link- Switch':   { 'production mi':21,'production smt':7,'quality smt':3,'quality mi':2,'quality fa3':4,'store':1,'trc':1,'engineering':2 },
+    'Nothing':           { 'production asm fa3':0,'it':10 }
   },
 
   DEPT_LABELS: {
     'admin & utility':    'Admin & Utility',
-    'Engineering':        'Engineering',
-    'HR':                 'HR',
-    'IT':                 'IT',
+    'engineering':        'Engineering',
+    'hr':                 'HR',
+    'it':                 'IT',
     'production mi':      'Production MI',
-    'TRC':                'TRC',
+    'trc':                'TRC',
     'production asm fa1': 'Production ASM FA1',
     'production asm fa2': 'Production ASM FA2',
     'production asm fa3': 'Production ASM FA3',
@@ -659,13 +660,24 @@ Y0yA/4t5p+2QpkyTA8isO0aODA==
   ],
 
   SHEET_CONFIG: {
-    'admin & utility':    { id:0, name:1, proj:4, stage:6, shift:5 },
-    'production mi':      { id:0, name:1, proj:4, stage:5, shift:6 },
-    'production asm fa1': { id:0, name:1, proj:4, stage:5, shift:6 },
-    'production asm fa2': { id:0, name:1, proj:4, stage:5, shift:6 },
-    'production asm fa3': { id:0, name:1, proj:4, stage:5, shift:6 },
-    'production smt':     { id:0, name:1, proj:4, shift:5, stage:6 },
-    'smt testing':        { id:0, name:1, proj:4, shift:5, stage:6 }
+    'admin & utility':    { id:0, name:1, dept:2, cat:3, proj:4, stage:6, shift:5, hasNightShift:false, normDept:'admin & utility' },
+    'production mi':      { id:0, name:1, dept:2, cat:3, proj:4, stage:5, shift:6, hasNightShift:false, normDept:'production mi' },
+    'hr':                 { id:0, name:1, dept:2, cat:3, proj:4, stage:5, shift:6, hasNightShift:false, normDept:'hr' },
+    'it':                 { id:0, name:1, dept:2, cat:3, proj:4, stage:5, shift:6, hasNightShift:false, normDept:'it' },
+    'trc':                { id:0, name:1, dept:2, cat:3, proj:5, stage:7, shift:6, hasNightShift:false, normDept:'trc' },
+    'engineering':        { id:0, name:1, dept:2, cat:3, proj:4, stage:5, shift:6, hasNightShift:true, normDept:'engineering' },
+    'production asm fa1': { id:0, name:1, dept:2, cat:3, proj:4, stage:5, shift:6, hasNightShift:true, normDept:'production asm fa1' },
+    'production asm fa2': { id:0, name:1, dept:2, cat:3, proj:4, stage:5, shift:6, hasNightShift:false, normDept:'production asm fa2' },
+    'production asm fa3': { id:0, name:1, dept:2, cat:3, proj:4, stage:5, shift:6, hasNightShift:false, normDept:'production asm fa3' },
+    'production smt':     { id:0, name:1, dept:2, cat:3, proj:4, shift:5, stage:6, hasNightShift:false, normDept:'production smt' },
+    'smt testing':        { id:0, name:1, dept:2, cat:3, proj:4, shift:5, stage:6, hasNightShift:false, normDept:'smt testing' },
+    'quality lab':        { id:0, name:1, dept:2, cat:3, proj:4, stage:5, shift:6, hasNightShift:true, normDept:'quality lab' },
+    'quality smt':        { id:0, name:1, dept:2, cat:3, proj:4, stage:5, shift:6, hasNightShift:false, normDept:'quality smt' },
+    'quality mi':         { id:0, name:1, dept:2, cat:3, proj:4, stage:5, shift:6, hasNightShift:false, normDept:'quality mi' },
+    'quality fa1':        { id:0, name:1, dept:2, cat:3, proj:4, stage:5, shift:6, hasNightShift:true, normDept:'quality fa1' },
+    'quality fa2':        { id:0, name:1, dept:2, cat:3, proj:4, stage:5, shift:6, hasNightShift:false, normDept:'quality fa2' },
+    'quality fa3':        { id:0, name:1, dept:2, cat:3, proj:4, stage:5, shift:6, hasNightShift:false, normDept:'quality fa3' },
+    'store':              { id:0, name:1, dept:2, cat:3, proj:4, stage:5, shift:6, hasNightShift:false, normDept:'store' }
   }
 };
 
@@ -869,6 +881,7 @@ async function fetchData() {
     // We'll count: for each project, for each dept, how many present
     // project+dept present count
     const presenceMap = {}; // projKey → deptKey → count
+    const _debugUnknownProj = {}; // normDept → rawProjValue → count (for unrecognised projects)
 
     for (const sheetName of CONFIG.DEPT_SHEETS) {
       const normSheetDept = normDept(sheetName);
@@ -883,40 +896,77 @@ async function fetchData() {
       const projIdx = sc.proj??4;
       const selectedDateCol = findTodayCol(header, curDateKey);
 
+      // Per-sheet debug counters
+      let _dbgPresent=0, _dbgSkipProj=0, _dbgSkipAtt=0, _dbgSkipId=0;
+
       rows.slice(1).forEach(row => {
-        if (!row[sc.id]||String(row[sc.id]).trim()==='') return;
+        if (!row[sc.id]||String(row[sc.id]).trim()==='') { _dbgSkipId++; return; }
         const id=normId(row[sc.id]);
-        if (['EMPLOYE ID','EMPID','`'].includes(id)) return;
-        // Name is optional — employee ID alone is sufficient to count presence
+        if (['EMPLOYE ID','EMPID','`'].includes(id)) { _dbgSkipId++; return; }
 
-        const projRaw=projIdx>=0 ? String(row[projIdx]||'').trim() : '';
-        if (!projRaw) return; // skip unassigned
-
-        // Determine attendance status
+        // Determine attendance status first
         const attVal=(selectedDateCol>=0&&selectedDateCol<row.length)?row[selectedDateCol]:null;
         let status=normStatus(attVal);
 
-        // Cross-check with HR punch
+        // Cross-check with HR punch — if they punched in, override to present
         const hr=hrMap[id];
-        if (hr && status==='absent') status='present'; // if they punched, count as present
-        if (hr && hr.present && status==='absent') status='present';
-        if (status==='woff') return; // skip week-offs
+        if (hr && hr.present) status='present';
 
-        if (status!=='present') return; // only count present
+        if (status==='woff') return; // skip week-offs
+        if (status!=='present') { _dbgSkipAtt++; return; } // absent, skip
+
+        // Project — read AFTER confirming person is present (so we don't skip present people with no proj)
+        const projRaw=projIdx>=0 ? String(row[projIdx]||'').trim() : '';
 
         // canonical project key — returns null for dept names / unknown values
-        const projKey=canonicalProject(projRaw);
-        if (!projKey) return; // not a recognised project — skip
+        const projKey=projRaw ? canonicalProject(projRaw) : null;
+        if (!projKey) {
+          _dbgSkipProj++;
+          // Log unrecognised project values for debugging
+          if (projRaw) _debugUnknownProj[normSheetDept] = _debugUnknownProj[normSheetDept] || {};
+          if (projRaw) _debugUnknownProj[normSheetDept][projRaw] = (_debugUnknownProj[normSheetDept][projRaw]||0)+1;
+          return;
+        }
+        _dbgPresent++;
         const deptKey=normSheetDept;
         if (!presenceMap[projKey]) presenceMap[projKey]=Object.create(null);
         presenceMap[projKey][deptKey]=(presenceMap[projKey][deptKey]||0)+1;
       });
+
+      console.log(`[${sheetName}] dateCol=${selectedDateCol} | counted=${_dbgPresent} | skipped_att=${_dbgSkipAtt} | skipped_proj=${_dbgSkipProj} | skipped_id=${_dbgSkipId}`);
     }
 
     el('loadingState').classList.add('hidden');
     renderDashboard(presenceMap, hrTabName, Object.keys(hrMap).length);
     setSyncState('ok','✓ Live');
     showToast(`Data loaded for ${formatDisplayDate(curDateKey)}`,'ok');
+
+    // Show debug panel if there are unrecognised project values
+    const unknownEntries = Object.entries(_debugUnknownProj);
+    if (unknownEntries.length > 0) {
+      let dbgHtml = '<div style="background:#1c2129;border:1px solid #f85149;border-radius:10px;padding:14px;margin-top:20px;font-size:11px;">';
+      dbgHtml += '<div style="color:#f85149;font-weight:700;margin-bottom:8px;font-size:13px;">⚠ Unrecognised project values (present people skipped)</div>';
+      dbgHtml += '<div style="color:#7d8590;margin-bottom:10px;">These values were found in the project column but did not match any known project. Add aliases if needed.</div>';
+      unknownEntries.forEach(([dept, vals]) => {
+        dbgHtml += `<div style="color:#58a6ff;font-weight:600;margin-top:8px">${dept}</div>`;
+        Object.entries(vals).forEach(([val, cnt]) => {
+          dbgHtml += `<div style="padding:2px 0;color:#e6edf3">&nbsp;&nbsp;"<span style="color:#ffa657">${val}</span>" — <span style="color:#3fb950">${cnt} present people skipped</span></div>`;
+        });
+      });
+      dbgHtml += '</div>';
+      // Append to main content
+      const existing = document.getElementById('debugPanel');
+      if (existing) existing.remove();
+      const dbgDiv = document.createElement('div');
+      dbgDiv.id = 'debugPanel';
+      dbgDiv.innerHTML = dbgHtml;
+      document.getElementById('mainContent').appendChild(dbgDiv);
+    } else {
+      const existing = document.getElementById('debugPanel');
+      if (existing) existing.remove();
+    }
+    console.log('Unknown project values:', _debugUnknownProj);
+    console.log('Presence map:', JSON.parse(JSON.stringify(presenceMap)));
 
   } catch(err) {
     console.error(err);
