@@ -1042,8 +1042,8 @@ function normDept(v) {
 }
 function normStatus(v) {
   const u = String(v||'').trim().toUpperCase().replace(/[\/\s]/g,'');
-  if (u==='P'||u==='H'||u==='HD'||u==='HALF') return 'present';
-  if (u==='WOFF'||u==='W/OFF') return 'woff';
+  if (u==='P' || u==='PR' || u==='PRESENT' || u==='H' || u==='HD' || u==='HALF') return 'present';
+  if (u==='WOFF' || u==='W/OFF') return 'woff';
   return 'absent';
 }
 function normLine(v) { return String(v||'').toLowerCase().replace(/\s+/g,' ').trim(); }
@@ -1061,8 +1061,14 @@ const PROJECT_ALIASES = {
   'tp link-switch':     'TP Link- Switch',
   'realme power bank':  'Realme -Power Bank',
   'realme-power bank':  'Realme -Power Bank',
-  'realme pearl':       'Realme -Pearl',
+  'realme powerbank':   'Realme -Power Bank',
   'realme-pearl':       'Realme -Pearl',
+  'realme pearl':       'Realme -Pearl',
+  'realme sw':          'Realme-SW',
+  'realme-sw':          'Realme-SW',
+  'realme -sw':         'Realme-SW',
+  'realme pcba':        'Realme-PCBA',
+  'realme-pcba':        'Realme-PCBA',
 };
 
 const _validNorm = {};
@@ -1072,6 +1078,15 @@ function canonicalProject(raw) {
   if (!raw || !raw.trim()) return null;
   const key = normLine(raw);
   if (_validNorm[key]) return _validNorm[key];
+
+  const normalized = key.replace(/[^a-z0-9]+/g,' ').trim();
+  if (normalized) {
+    for (const projKey of Object.keys(_validNorm)) {
+      const projNormalized = projKey.replace(/[^a-z0-9]+/g,' ').trim();
+      if (projNormalized === normalized) return _validNorm[projKey];
+    }
+  }
+
   for (const [alias, canonical] of Object.entries(PROJECT_ALIASES)) {
     if (normLine(alias) === key) return canonical;
   }
@@ -1227,7 +1242,7 @@ async function fetchData() {
       const normSheetDept = normDept(sheetName);
       let rows=[];
       try {
-        rows=await sheetRange(token, CONFIG.GS_MASTER_SHEET_ID, formatRange(sheetName,'A1:CZ500'));
+        rows=await sheetRange(token, CONFIG.GS_MASTER_SHEET_ID, formatRange(sheetName,'A1:FZ1000'));
       } catch(e){ continue; }
       if (!rows||rows.length<2) continue;
 
