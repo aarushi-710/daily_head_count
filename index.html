@@ -1502,10 +1502,15 @@ async function fetchData() {
       const projIdx = sc.proj??4;
       const selectedDateCol = findTodayCol(header, curDateKey);
 
+      const seenIds = new Set();
+
       rows.slice(1).forEach(row => {
         if (!row[sc.id]||String(row[sc.id]).trim()==='') return;
         const id=normId(row[sc.id]);
         if (['EMPLOYE ID','EMPID','`'].includes(id)) return;
+
+        if (seenIds.has(id)) return;
+        seenIds.add(id);
 
         const attVal=(selectedDateCol>=0&&selectedDateCol<row.length)?row[selectedDateCol]:null;
         let status=normStatus(attVal);
