@@ -280,7 +280,6 @@ header {
   border-left: 1px solid var(--border);
 }
 
-/* Column header colour accents */
 .sum-table thead th:nth-child(2) { color: var(--blue) !important; }
 .sum-table thead th:nth-child(3) { color: var(--purple) !important; }
 .sum-table thead th:nth-child(4) { color: var(--green) !important; }
@@ -322,7 +321,6 @@ header {
   border-left: 1px solid var(--border2);
 }
 
-/* Foot row */
 .sum-table tfoot tr td {
   padding: 12px 20px;
   font-family: 'Barlow Condensed', sans-serif;
@@ -360,7 +358,6 @@ main {
   margin: 0 auto;
 }
 
-/* ── LOADING / ERROR STATE ── */
 .state-box {
   text-align: center;
   padding: 80px 20px;
@@ -370,7 +367,7 @@ main {
 .state-box .msg { font-size: 15px; font-weight: 500; margin-bottom: 6px; color: var(--text); }
 .state-box .sub { font-size: 12px; }
 
-/* ── GRAND TOTAL KPI ROW ── */
+/* ── KPI ROW ── */
 .kpi-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -487,18 +484,26 @@ main {
   color: var(--accent);
   white-space: nowrap;
 }
+/* Badge: zero = no one present */
 .project-badge.zero {
-  background: rgba(248,81,73,.08);
-  border-color: rgba(248,81,73,.2);
-  color: var(--red);
+  background: rgba(125,133,144,.08);
+  border-color: rgba(125,133,144,.2);
+  color: var(--muted);
 }
-/* Badge color when over/under required */
+/* Badge: within ±2 = green */
 .project-badge.over {
   background: rgba(63,185,80,.12);
   border-color: rgba(63,185,80,.3);
   color: var(--green);
 }
+/* Badge: short by >2 = blue */
 .project-badge.under {
+  background: rgba(88,166,255,.12);
+  border-color: rgba(88,166,255,.3);
+  color: var(--blue);
+}
+/* Badge: excess by >2 = red */
+.project-badge.excess {
   background: rgba(248,81,73,.12);
   border-color: rgba(248,81,73,.3);
   color: var(--red);
@@ -539,7 +544,6 @@ main {
   font-weight: 500;
 }
 
-/* Present / Required cell */
 .dept-present {
   text-align: right;
   font-family: 'JetBrains Mono', monospace;
@@ -548,15 +552,22 @@ main {
   white-space: nowrap;
 }
 
-/* Present number colour */
-.num-over   { color: var(--green); }   /* present >= required */
-.num-under  { color: var(--red);   }   /* present < required & required > 0 */
-.num-zero   { color: var(--muted2);}   /* present = 0 */
-.num-norequired { color: var(--blue); } /* present > 0, no required defined */
+/*
+ * COLOUR LOGIC (revised):
+ *   num-over      = green  → present within ±2 of required (or equal)
+ *   num-under     = blue   → present short by more than 2
+ *   num-excess    = red    → present over by more than 2
+ *   num-zero      = muted  → 0 present
+ *   num-norequired= blue   → present > 0, no target defined
+ */
+.num-over       { color: var(--green); }
+.num-under      { color: var(--blue);  }
+.num-excess     { color: var(--red);   }
+.num-zero       { color: var(--muted2);}
+.num-norequired { color: var(--blue);  }
 
-/* Required number — always muted */
-.req-sep    { color: var(--muted2); font-size: 11px; margin: 0 1px; }
-.req-num    { color: var(--muted);  font-size: 11px; }
+.req-sep { color: var(--muted2); font-size: 11px; margin: 0 1px; }
+.req-num { color: var(--muted);  font-size: 11px; }
 
 .dept-bar-cell {
   padding: 0 12px 0 0;
@@ -574,9 +585,10 @@ main {
   background: var(--green);
   transition: width .6s cubic-bezier(.4,0,.2,1);
 }
-.mini-bar-fill.zero  { background: var(--muted2); }
-.mini-bar-fill.under { background: var(--red); }
-.mini-bar-fill.over  { background: var(--green); }
+.mini-bar-fill.zero   { background: var(--muted2); }
+.mini-bar-fill.under  { background: var(--blue); }   /* short by >2 = blue bar */
+.mini-bar-fill.over   { background: var(--green); }  /* within ±2   = green bar */
+.mini-bar-fill.excess { background: var(--red); }    /* over by >2  = red bar */
 
 .dept-table tfoot td {
   font-weight: 700;
@@ -602,11 +614,7 @@ footer {
   justify-content: space-between;
   pointer-events: none;
 }
-.footer-brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+.footer-brand { display: flex; align-items: center; gap: 10px; }
 .footer-txt {
   font-size: 10px;
   color: var(--muted2);
@@ -614,13 +622,7 @@ footer {
   letter-spacing: 1.5px;
   text-transform: uppercase;
 }
-.opex-logo {
-  height: 32px;
-  width: auto;
-  object-fit: contain;
-  opacity: .7;
-  filter: grayscale(30%);
-}
+.opex-logo { height: 32px; width: auto; object-fit: contain; opacity: .7; filter: grayscale(30%); }
 .opex-fallback {
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 16px;
@@ -634,7 +636,6 @@ footer {
   padding: 4px 10px;
 }
 
-/* toast */
 #toast {
   position: fixed;
   bottom: 70px;
@@ -777,9 +778,9 @@ footer {
       <div class="section-line"></div>
       <!-- Legend -->
       <div style="display:flex;align-items:center;gap:14px;font-size:10px;font-family:'JetBrains Mono',monospace;flex-shrink:0;">
-        <span style="color:var(--green);">■</span><span style="color:var(--muted);">Present ≥ Required</span>
-        <span style="color:var(--red);">■</span><span style="color:var(--muted);">Present &lt; Required</span>
-        <span style="color:var(--blue);">■</span><span style="color:var(--muted);">No target set</span>
+        <span style="color:var(--green);">■</span><span style="color:var(--muted);">Within ±2</span>
+        <span style="color:var(--blue);">■</span><span style="color:var(--muted);">Short &gt;2</span>
+        <span style="color:var(--red);">■</span><span style="color:var(--muted);">Excess &gt;2</span>
         <span style="color:var(--muted);">Format: <span style="color:var(--text);">Present</span><span style="color:var(--muted2);">/</span><span style="color:var(--muted);">Req</span></span>
       </div>
     </div>
@@ -842,415 +843,164 @@ Y0yA/4t5p+2QpkyTA8isO0aODA==
     'TP Link- Router','TP Link- Switch','Nothing','Realme-PCBA'
   ],
 
-  /*
-   * Required HC per project per dept — extracted from Image 1 (the spreadsheet).
-   * Row = dept, Col = project. Only non-zero values stored.
-   * These are the "target / required" headcounts shown as the denominator.
-   */
   LINE_DEPT_HC: {
-    
-'Quectel': {    
-      'production mi': 0,
-      'quality mi':    0,
-      'trc':           0,
-      'production asm fa2': 0,
-      'production asm fa3': 0,
-      'quality lab':        0,
-      'quality fa1':        0,
-      'quality fa3':        0,
-      'admin & utility':  0,  
-      'hr':      0,
-      'it':        0,    
-      'engineering':    1,
-      'production asm fa1': 0,
-      'production smt': 11,
-      'quality smt':    2,
-      'quality fa2':    1,
-      'store':          1,
-      'smt testing':    36,
-      'quality testing': 3
+    'Quectel': {
+      'production mi': 0,'quality mi': 0,'trc': 0,
+      'production asm fa2': 0,'production asm fa3': 0,
+      'quality lab': 0,'quality fa1': 0,'quality fa3': 0,
+      'admin & utility': 0,'hr': 0,'it': 0,
+      'engineering': 1,'production asm fa1': 0,
+      'production smt': 11,'quality smt': 2,'quality fa2': 1,
+      'store': 1,'smt testing': 36,'quality testing': 3
     },
     'Kozen': {
-      'production smt': 0,    
-      'quality smt':   0,
-      'smt testing':   0,
-      'production mi': 0,
-      'quality mi':    0,
-      'production asm fa1': 0,
-      'production asm fa3': 0,
-      'quality lab':        0,
-      'quality fa1':        0,
-      'quality fa3':        0,
-      'admin & utility':  0,  
-      'hr':      0,
-      'it':        0,   
-      'engineering':        2,
-      'production asm fa2': 93,
-      'quality fa2':        8,
-      'store':              2,
-      'trc':                1,
-      'quality testing':    0
+      'production smt': 0,'quality smt': 0,'smt testing': 0,
+      'production mi': 0,'quality mi': 0,
+      'production asm fa1': 0,'production asm fa3': 0,
+      'quality lab': 0,'quality fa1': 0,'quality fa3': 0,
+      'admin & utility': 0,'hr': 0,'it': 0,
+      'engineering': 2,'production asm fa2': 93,
+      'quality fa2': 8,'store': 2,'trc': 1,'quality testing': 0
     },
     'Realme -Power Bank': {
-      'production smt': 0,    
-      'quality smt':   0,
-      'smt testing':   0,
-      'production mi': 0,
-      'quality mi':    0,
-      'production asm fa2': 0,
-      'production asm fa3': 0,
-      'quality lab':        0,
-      'quality fa2':        0,
-      'quality fa3':        0,
-      'admin & utility':  0,  
-      'hr':      0,
-      'it':        0,
-      'engineering':        2,
-      'production asm fa1': 83,
-      'quality fa1':        6,
-      'store':              1,
-      'trc':                1,
-      'quality testing':    0
+      'production smt': 0,'quality smt': 0,'smt testing': 0,
+      'production mi': 0,'quality mi': 0,
+      'production asm fa2': 0,'production asm fa3': 0,
+      'quality lab': 0,'quality fa2': 0,'quality fa3': 0,
+      'admin & utility': 0,'hr': 0,'it': 0,
+      'engineering': 2,'production asm fa1': 83,
+      'quality fa1': 6,'store': 1,'trc': 1,'quality testing': 0
     },
     'Realme -Pearl': {
-      'production smt': 0,    
-      'quality smt':   0,
-      'smt testing':   0,
-      'production mi': 0,
-      'quality mi':    0,
-      'production asm fa2': 0,
-      'production asm fa3': 0,
-      'quality lab':        0,
-      'quality fa2':        0,
-      'quality fa3':        0,
-      'admin & utility':  0,  
-      'hr':      0,
-      'engineering':        3,
-      'it':                 1,
-      'production asm fa1': 186,
-      'quality fa1':        24,
-      'store':              2,
-      'trc':                2,
-      'quality testing':    0
+      'production smt': 0,'quality smt': 0,'smt testing': 0,
+      'production mi': 0,'quality mi': 0,
+      'production asm fa2': 0,'production asm fa3': 0,
+      'quality lab': 0,'quality fa2': 0,'quality fa3': 0,
+      'admin & utility': 0,'hr': 0,
+      'engineering': 3,'it': 1,
+      'production asm fa1': 186,'quality fa1': 24,
+      'store': 2,'trc': 2,'quality testing': 0
     },
     'Realme-SW': {
-      'production smt': 0,    
-      'quality smt':   0,
-      'smt testing':   0,
-      'production mi': 0,
-      'quality mi':    0,
-      'production asm fa1': 0,
-      'production asm fa3': 0,
-      'quality lab':        0,
-      'quality fa1':        0,
-      'quality fa3':        0,
-      'admin & utility':  0,  
-      'hr':      0,
-      'it':        0, 
-      'engineering':        2,
-      'production asm fa2': 67,
-      'quality fa2':        12,
-      'store':              2,
-      'trc':                1,
-      'quality testing':    0
+      'production smt': 0,'quality smt': 0,'smt testing': 0,
+      'production mi': 0,'quality mi': 0,
+      'production asm fa1': 0,'production asm fa3': 0,
+      'quality lab': 0,'quality fa1': 0,'quality fa3': 0,
+      'admin & utility': 0,'hr': 0,'it': 0,
+      'engineering': 2,'production asm fa2': 67,
+      'quality fa2': 12,'store': 2,'trc': 1,'quality testing': 0
     },
     'Realme-PCBA': {
-      'production smt': 0,    
-      'quality smt':   0,
-      'smt testing':   0,
-      'production mi': 0,
-      'quality mi':    0,
-      'engineering':   0,
-      'trc':           0,
-      'production asm fa1': 0,
-      'production asm fa2': 0,
-      'production asm fa3': 0,
-      'quality lab':        0,
-      'quality fa1':        0,
-      'quality fa2':        0,
-      'quality fa3':        0,
-      'admin & utility':  0,  
-      'hr':      0,
-      'it':        0,        
-      'store': 0,
-      'quality testing': 0
+      'production smt': 0,'quality smt': 0,'smt testing': 0,
+      'production mi': 0,'quality mi': 0,'engineering': 0,'trc': 0,
+      'production asm fa1': 0,'production asm fa2': 0,'production asm fa3': 0,
+      'quality lab': 0,'quality fa1': 0,'quality fa2': 0,'quality fa3': 0,
+      'admin & utility': 0,'hr': 0,'it': 0,'store': 0,'quality testing': 0
     },
     'Accton': {
-      'production smt': 0,    
-      'quality smt':   0,
-      'smt testing':   0,
-      'production mi': 0,
-      'quality mi':    0,
-      'engineering':   0,
-      'trc':           0,
-      'production asm fa1': 0,
-      'production asm fa2': 0,
-      'production asm fa3': 0,
-      'quality lab':        0,
-      'quality fa1':        0,
-      'quality fa2':        0,
-      'quality fa3':        0,
-      'admin & utility':  0,  
-      'hr':      0,
-      'it':        0,        
-      'store': 0,
-      'quality testing': 0
+      'production smt': 0,'quality smt': 0,'smt testing': 0,
+      'production mi': 0,'quality mi': 0,'engineering': 0,'trc': 0,
+      'production asm fa1': 0,'production asm fa2': 0,'production asm fa3': 0,
+      'quality lab': 0,'quality fa1': 0,'quality fa2': 0,'quality fa3': 0,
+      'admin & utility': 0,'hr': 0,'it': 0,'store': 0,'quality testing': 0
     },
     'Alpha-JIDU6201': {
-      'production smt': 0,    
-      'quality smt':   0,
-      'smt testing':   0,
-      'production mi': 0,
-      'quality mi':    0,
-      'engineering':   0,
-      'trc':           0,
-      'production asm fa1': 0,
-      'production asm fa2': 0,
-      'production asm fa3': 0,
-      'quality lab':        0,
-      'quality fa1':        0,
-      'quality fa2':        0,
-      'quality fa3':        0,
-      'admin & utility':  0,  
-      'hr':      0,
-      'it':        0,        
-      'store': 0,
-      'quality testing': 0
+      'production smt': 0,'quality smt': 0,'smt testing': 0,
+      'production mi': 0,'quality mi': 0,'engineering': 0,'trc': 0,
+      'production asm fa1': 0,'production asm fa2': 0,'production asm fa3': 0,
+      'quality lab': 0,'quality fa1': 0,'quality fa2': 0,'quality fa3': 0,
+      'admin & utility': 0,'hr': 0,'it': 0,'store': 0,'quality testing': 0
     },
     'ARC-RMDU': {
-      'smt testing':   0,
-      'production asm fa1': 0,
-      'production asm fa3': 0,
-      'quality lab':        0,
-      'quality fa1':        0,
-      'quality fa3':        0,
-      'admin & utility':  0,  
-      'hr':      0,
-      'engineering':    4,
-      'it':             1,
-      'production mi':  25,
-      'production smt': 19,
-      'production asm fa2': 82,
-      'quality mi':     4,
-      'quality smt':    9,
-      'quality fa2':    19,
-      'store':          3,
-      'trc':            2,
-      'quality testing': 0
+      'smt testing': 0,'production asm fa1': 0,'production asm fa3': 0,
+      'quality lab': 0,'quality fa1': 0,'quality fa3': 0,
+      'admin & utility': 0,'hr': 0,
+      'engineering': 4,'it': 1,
+      'production mi': 25,'production smt': 19,'production asm fa2': 82,
+      'quality mi': 4,'quality smt': 9,'quality fa2': 19,
+      'store': 3,'trc': 2,'quality testing': 0
     },
     'Vivo-BTE732': {
-      'production smt': 0,    
-      'quality smt':   0,
-      'smt testing':   0,
-      'production mi': 0,
-      'quality mi':    0,
-      'production asm fa1': 0,
-      'production asm fa2': 0,
-      'quality lab':        0,
-      'quality fa1':        0,
-      'quality fa2':        0,
-      'admin & utility':  0,  
-      'hr':      0,
-      'engineering':        3,
-      'it':                 1,
-      'production asm fa3': 167,
-      'quality fa3':        17,
-      'store':              2,
-      'trc':                2,
-      'quality testing':    0
+      'production smt': 0,'quality smt': 0,'smt testing': 0,
+      'production mi': 0,'quality mi': 0,
+      'production asm fa1': 0,'production asm fa2': 0,
+      'quality lab': 0,'quality fa1': 0,'quality fa2': 0,
+      'admin & utility': 0,'hr': 0,
+      'engineering': 3,'it': 1,
+      'production asm fa3': 167,'quality fa3': 17,
+      'store': 2,'trc': 2,'quality testing': 0
     },
     'BharatPe': {
-      'production smt': 0,    
-      'quality smt':   0,
-      'smt testing':   0,
-      'production mi': 0,
-      'quality mi':    0,
-      'engineering':   0,
-      'trc':           0,
-      'production asm fa1': 0,
-      'production asm fa2': 0,
-      'production asm fa3': 0,
-      'quality lab':        0,
-      'quality fa1':        0,
-      'quality fa2':        0,
-      'quality fa3':        0,
-      'admin & utility':  0,  
-      'hr':      0,
-      'it':        0,        
-      'store': 0,
-      'quality testing': 0
+      'production smt': 0,'quality smt': 0,'smt testing': 0,
+      'production mi': 0,'quality mi': 0,'engineering': 0,'trc': 0,
+      'production asm fa1': 0,'production asm fa2': 0,'production asm fa3': 0,
+      'quality lab': 0,'quality fa1': 0,'quality fa2': 0,'quality fa3': 0,
+      'admin & utility': 0,'hr': 0,'it': 0,'store': 0,'quality testing': 0
     },
     'Xiaomi-N65C': {
-      'production smt': 0,    
-      'quality smt':   0,
-      'smt testing':   0,
-      'production mi': 0,
-      'quality mi':    0,
-      'engineering':   0,
-      'trc':           0,
-      'production asm fa1': 0,
-      'production asm fa2': 0,
-      'production asm fa3': 0,
-      'quality lab':        0,
-      'quality fa1':        0,
-      'quality fa2':        0,
-      'quality fa3':        0,
-      'admin & utility':  0,  
-      'hr':      0,
-      'it':        0,        
-      'store': 0,
-      'quality testing': 0
+      'production smt': 6,'quality smt': 4,'smt testing': 6,
+      'production mi': 0,'quality mi': 0,'engineering': 2,'trc': 1,
+      'production asm fa1': 0,'production asm fa2': 0,
+      'production asm fa3': 79,'quality lab': 0,
+      'quality fa1': 0,'quality fa2': 0,'quality fa3': 19,
+      'admin & utility': 0,'hr': 0,'it': 0,'store': 1,'quality testing': 0
     },
     'Realme-Kanon': {
-      'production smt': 0,    
-      'quality smt':   0,
-      'smt testing':   0,
-      'production mi': 0,
-      'quality mi':    0,
-      'production asm fa1': 0,
-      'production asm fa2': 0,
-      'quality fa1':        0,
-      'quality fa2':        0,
-      'admin & utility':  0,  
-      'hr':      0,
-      'engineering':        3,
-      'it':                 1,
-      'production asm fa3': 111,
-      'quality fa3':        13,
-      'quality lab':        0,
-      'store':              2,
-      'trc':                2,
-      'quality testing': 0
+      'production smt': 0,'quality smt': 0,'smt testing': 0,
+      'production mi': 0,'quality mi': 0,
+      'production asm fa1': 0,'production asm fa2': 0,
+      'quality fa1': 0,'quality fa2': 0,
+      'admin & utility': 0,'hr': 0,
+      'engineering': 3,'it': 1,
+      'production asm fa3': 111,'quality fa3': 13,
+      'quality lab': 0,'store': 2,'trc': 2,'quality testing': 0
     },
     'Qubo': {
-      'smt testing':   0,
-      'production mi': 0,
-      'quality mi':    0,
-      'production asm fa1': 0,
-      'production asm fa2': 0,
-      'quality lab':        0,
-      'quality fa1':        0,
-      'quality fa2':        0,
-      'admin & utility':  0,  
-      'hr':      0,  
-      'engineering':        2,
-      'it':                 0,
-      'production asm fa3': 56,
-      'production smt':     0,
-      'quality fa3':        8,
-      'quality smt':        0,
-      'store':              1,
-      'trc':                1,
-      'quality testing':    0
+      'smt testing': 0,'production mi': 0,'quality mi': 0,
+      'production asm fa1': 0,'production asm fa2': 0,
+      'quality lab': 0,'quality fa1': 0,'quality fa2': 0,
+      'admin & utility': 0,'hr': 0,
+      'engineering': 2,'it': 0,
+      'production asm fa3': 56,'production smt': 0,
+      'quality fa3': 8,'quality smt': 0,
+      'store': 1,'trc': 1,'quality testing': 0
     },
     'Boat': {
-      'production smt': 0,
-      'smt testing':   0,
-      'production mi': 0,
-      'quality mi':    0,
-      'production asm fa1': 0,
-      'production asm fa2': 0,
-      'quality lab':        0,
-      'quality fa1':        0,
-      'quality fa2':        0,
-      'admin & utility':  0,  
-      'hr':      0,
-      'it':        0,
-      'engineering':        2,
-      'production asm fa3': 89,
-      'quality fa3':        9,
-      'quality smt':        0,
-      'store':              2,
-      'trc':                2,
-      'quality testing': 0
+      'production smt': 0,'smt testing': 0,
+      'production mi': 0,'quality mi': 0,
+      'production asm fa1': 0,'production asm fa2': 0,
+      'quality lab': 0,'quality fa1': 0,'quality fa2': 0,
+      'admin & utility': 0,'hr': 0,'it': 0,
+      'engineering': 2,'production asm fa3': 89,
+      'quality fa3': 9,'quality smt': 0,
+      'store': 2,'trc': 2,'quality testing': 0
     },
     'TP Link- Router': {
-      'smt testing':   0,
-      'production asm fa1': 0,
-      'production asm fa2': 0,
-      'quality lab':        0,
-      'quality fa1':        0,
-      'quality fa2':        0,
-      'admin & utility':  0,  
-      'hr':      0,
-      'it':        0,  
-      'engineering':        2,
-      'it':                 0,
-      'production asm fa3': 59,
-      'production mi':      35,
-      'production smt':     7,
-      'quality fa3':        9,
-      'quality mi':         3,
-      'quality smt':        3,
-      'store':              4,
-      'trc':                1,
-      'quality testing': 0
+      'smt testing': 0,'production asm fa1': 0,'production asm fa2': 0,
+      'quality lab': 0,'quality fa1': 0,'quality fa2': 0,
+      'admin & utility': 0,'hr': 0,'it': 0,
+      'engineering': 2,
+      'production asm fa3': 59,'production mi': 35,'production smt': 7,
+      'quality fa3': 9,'quality mi': 3,'quality smt': 3,
+      'store': 4,'trc': 1,'quality testing': 0
     },
     'TP Link- Switch': {
-      'production asm fa1': 0,
-      'production asm fa2': 0,
-      'quality lab':        0,
-      'quality fa1':        0,
-      'quality fa2':        0,
-      'admin & utility':  0,  
-      'hr':      0,
-      'it':        0,        
-      'engineering':    2,
-      'production mi':  21,
-      'production smt': 7,
-      'production asm fa3': 28,
-      'quality fa3':    4,
-      'quality mi':     2,
-      'quality smt':    3,
-      'store':          1,
-      'trc':            1,
-      'quality testing': 0
-    },
-    'Xiaomi-N65C': {
-      'production smt': 6,    
-      'quality smt':   4,
-      'smt testing':   6,
-      'production mi': 0,
-      'quality mi':    0,
-      'engineering':   2,
-      'trc':           1,
-      'production asm fa1': 0,
-      'production asm fa2': 0,
-      'production asm fa3': 79,
-      'quality lab':        0,
-      'quality fa1':        0,
-      'quality fa2':        0,
-      'quality fa3':        19,
-      'admin & utility':  0,  
-      'hr':      0,
-      'it':        0,        
-      'store': 1,
-      'quality testing': 0
+      'production asm fa1': 0,'production asm fa2': 0,
+      'quality lab': 0,'quality fa1': 0,'quality fa2': 0,
+      'admin & utility': 0,'hr': 0,'it': 0,
+      'engineering': 2,'production mi': 21,'production smt': 7,
+      'production asm fa3': 28,'quality fa3': 4,
+      'quality mi': 2,'quality smt': 3,
+      'store': 1,'trc': 1,'quality testing': 0
     },
     'Nothing': {
-      'production smt': 0,    
-      'quality smt':   0,
-      'smt testing':   0,
-      'production mi': 0,
-      'quality mi':    0,
-      'engineering':   0,
-      'trc':           0,
-      'production asm fa1': 0,
-      'production asm fa2': 0,
-      'production asm fa3': 0,
-      'quality lab':        0,
-      'quality fa1':        0,
-      'quality fa2':        0,
-      'quality fa3':        0,
-      'admin & utility':  0,  
-      'hr':      0,
-      'it':        0,        
-      'store': 0,
-      'quality testing': 0
+      'production smt': 0,'quality smt': 0,'smt testing': 0,
+      'production mi': 0,'quality mi': 0,'engineering': 0,'trc': 0,
+      'production asm fa1': 0,'production asm fa2': 0,'production asm fa3': 0,
+      'quality lab': 0,'quality fa1': 0,'quality fa2': 0,'quality fa3': 0,
+      'admin & utility': 0,'hr': 0,'it': 0,'store': 0,'quality testing': 0
     }
   },
-
-
 
   DEPT_LABELS: {
     'admin & utility':    'Admin & Utility',
@@ -1312,12 +1062,23 @@ function normDept(v) {
   if (s==='production fa-2'||s==='production fa2') return 'production asm fa2';
   return s;
 }
+
+/*
+ * ── ATTENDANCE STATUS NORMALISER (REVISED) ──
+ *
+ * P / PR / PRESENT  → 'present'   counted
+ * H / HD / HALF     → 'half'      EXCLUDED — neither present nor absent
+ * W/OFF             → 'woff'      excluded (weekly off)
+ * anything else     → 'absent'    not counted
+ */
 function normStatus(v) {
   const u = String(v||'').trim().toUpperCase().replace(/[\/\s]/g,'');
-  if (u==='P' || u==='PR' || u==='PRESENT' || u==='H' || u==='HD' || u==='HALF') return 'present';
-  if (u==='WOFF' || u==='W/OFF') return 'woff';
+  if (u==='P' || u==='PR' || u==='PRESENT')    return 'present';
+  if (u==='H' || u==='HD' || u==='HALF')        return 'half';   // skip — not present, not absent
+  if (u==='WOFF' || u==='WOFF')                 return 'woff';
   return 'absent';
 }
+
 function normLine(v) { return String(v||'').toLowerCase().replace(/\s+/g,' ').trim(); }
 
 const PROJECT_ALIASES = {
@@ -1350,7 +1111,6 @@ function canonicalProject(raw) {
   if (!raw || !raw.trim()) return null;
   const key = normLine(raw);
   if (_validNorm[key]) return _validNorm[key];
-
   const normalized = key.replace(/[^a-z0-9]+/g,' ').trim();
   if (normalized) {
     for (const projKey of Object.keys(_validNorm)) {
@@ -1358,12 +1118,12 @@ function canonicalProject(raw) {
       if (projNormalized === normalized) return _validNorm[projKey];
     }
   }
-
   for (const [alias, canonical] of Object.entries(PROJECT_ALIASES)) {
     if (normLine(alias) === key) return canonical;
   }
   return null;
 }
+
 function normId(v) { return String(v||'').trim().toUpperCase(); }
 
 function parseSheetDate(cell) {
@@ -1535,9 +1295,14 @@ async function fetchData() {
 
         const attVal=(selectedDateCol>=0&&selectedDateCol<row.length)?row[selectedDateCol]:null;
         let status=normStatus(attVal);
+
+        // HR override: if HR shows an in-time, mark as present
         const hr=hrMap[id];
         if (hr && hr.present) status='present';
+
+        // Skip weekly-off and half-day — neither counted as present nor absent
         if (status==='woff') return;
+        if (status==='half') return;   // ← H/HD excluded entirely
         if (status!=='present') return;
 
         const projRaw=projIdx>=0 ? String(row[projIdx]||'').trim() : '';
@@ -1598,8 +1363,10 @@ function formatDisplayDate(key) {
 }
 
 /* ── RENDER ── */
+let _lastPresenceMap = null;
+
 function renderDashboard(presenceMap, hrTabName, hrCount) {
-  _lastPresenceMap = presenceMap; // keep for Summary modal
+  _lastPresenceMap = presenceMap;
   const allProjects = CONFIG.VALID_PROJECTS;
   let grandTotal=0, grandRequired=0;
   let activeProjects=0;
@@ -1620,7 +1387,6 @@ function renderDashboard(presenceMap, hrTabName, hrCount) {
     for (const deptKey of deptSet) {
       const present=actualPresence[deptKey]||0;
       const hc=configDepts.hasOwnProperty(deptKey) ? (configDepts[deptKey]||0) : null;
-      // hc=null means dept has people but no required target set
       const label=CONFIG.DEPT_LABELS[deptKey]||deptKey;
       depts.push({dept:deptKey, label, present, hc});
       projTotal+=present;
@@ -1640,7 +1406,6 @@ function renderDashboard(presenceMap, hrTabName, hrCount) {
     return a.name.localeCompare(b.name);
   });
 
-  // Status bar
   el('statusBar').style.display='flex';
   el('sbDate').textContent=formatDisplayDate(curDateKey);
   el('sbTotal').textContent=grandTotal;
@@ -1648,7 +1413,6 @@ function renderDashboard(presenceMap, hrTabName, hrCount) {
   el('sbDepts').textContent=allDepts.size;
   el('sbSource').textContent=hrTabName+' · '+hrCount+' HR records';
 
-  // KPI row
   el('kpiSection').classList.remove('hidden');
   const topProjects=projectData.filter(p=>p.total>0).slice(0,2);
   const fillPct = grandRequired>0 ? Math.round(grandTotal/grandRequired*100) : null;
@@ -1679,32 +1443,52 @@ function renderDashboard(presenceMap, hrTabName, hrCount) {
     }).join('')}
   `;
 
-  // Project cards
   el('dashSection').classList.remove('hidden');
 
   el('projectsGrid').innerHTML=projectData.map(proj=>{
-    const maxInProj=Math.max(...proj.depts.map(d=>d.present), proj.required||0, 1);
 
     const rowsHTML=proj.depts.map(d=>{
       const hasRequired = d.hc !== null;
       const req = hasRequired ? d.hc : 0;
 
-      // Determine colour class for present number
+      /*
+       * ── COLOUR LOGIC (revised) ──
+       *
+       * No required defined  → blue  (num-norequired)
+       * 0 present            → muted (num-zero)
+       * present within ±2    → green (num-over)
+       * present short by >2  → blue  (num-under)
+       * present over by >2   → red   (num-excess)
+       */
       let numClass;
-      if (d.present === 0)              numClass = 'num-zero';
-      else if (!hasRequired)            numClass = 'num-norequired';
-      else if (d.present >= req)        numClass = 'num-over';
-      else                               numClass = 'num-under';
+      if (d.present === 0) {
+        numClass = 'num-zero';
+      } else if (!hasRequired || req === 0) {
+        numClass = 'num-norequired';
+      } else {
+        const diff = d.present - req;
+        if (Math.abs(diff) <= 2)  numClass = 'num-over';    // ±2 band → green
+        else if (diff < -2)       numClass = 'num-under';   // short >2 → blue
+        else                      numClass = 'num-excess';  // excess >2 → red
+      }
 
-      // Bar: fill relative to max(present, req)
+      // Mini-bar colour mirrors the same logic
       const barMax = Math.max(d.present, req, 1);
       const barW   = Math.round((d.present / barMax) * 100);
-      let   barClass = d.present===0 ? 'zero' : (hasRequired && d.present < req ? 'under' : 'over');
+      let barClass;
+      if (d.present === 0) {
+        barClass = 'zero';
+      } else if (!hasRequired || req === 0) {
+        barClass = 'over';
+      } else {
+        const diff = d.present - req;
+        if (Math.abs(diff) <= 2)  barClass = 'over';    // green
+        else if (diff < -2)       barClass = 'under';   // blue
+        else                      barClass = 'excess';  // red
+      }
 
-      // Build the present/req display
       let presentDisplay;
       if (!hasRequired || req === 0) {
-        // No required — just show present number
         presentDisplay = `<span class="${numClass}">${d.present}</span>`;
       } else {
         presentDisplay = `<span class="${numClass}">${d.present}</span><span class="req-sep">/</span><span class="req-num">${req}</span>`;
@@ -1721,13 +1505,19 @@ function renderDashboard(presenceMap, hrTabName, hrCount) {
       </tr>`;
     }).join('');
 
-    // Project badge colour
+    /*
+     * Project badge: same ±2 tolerance applied to project totals
+     */
     let badgeClass = '';
-    if (proj.total === 0) badgeClass = 'zero';
-    else if (proj.required > 0 && proj.total >= proj.required) badgeClass = 'over';
-    else if (proj.required > 0 && proj.total < proj.required)  badgeClass = 'under';
+    if (proj.total === 0) {
+      badgeClass = 'zero';
+    } else if (proj.required > 0) {
+      const diff = proj.total - proj.required;
+      if (Math.abs(diff) <= 2)  badgeClass = 'over';    // green
+      else if (diff < -2)       badgeClass = 'under';   // blue
+      else                      badgeClass = 'excess';  // red
+    }
 
-    // Badge shows Present/Required for the project total
     const badgeText = proj.required > 0
       ? `${proj.total}<span style="opacity:.55;font-size:10px">/${proj.required}</span>`
       : `${proj.total}`;
@@ -1758,11 +1548,6 @@ function renderDashboard(presenceMap, hrTabName, hrCount) {
 }
 
 /* ── SUMMARY MODAL ── */
-
-/*
- * Which "area" each dept belongs to for the summary table.
- * Depts not listed here (store, hr, admin, it) are intentionally excluded.
- */
 const DEPT_AREA = {
   'production smt':     'smt',
   'quality smt':        'smt',
@@ -1785,14 +1570,8 @@ const DEPT_AREA = {
   'store':              'fatp'
 };
 
-// Holds last rendered presenceMap so Summary can use live data
-let _lastPresenceMap = null;
-
 function openSummary() {
-  if (!_lastPresenceMap) {
-    showToast('Load data first by selecting a date', 'warn');
-    return;
-  }
+  if (!_lastPresenceMap) { showToast('Load data first by selecting a date', 'warn'); return; }
   renderSummary(_lastPresenceMap);
   el('summaryOverlay').classList.remove('hidden');
 }
@@ -1800,44 +1579,35 @@ function closeSummary() { el('summaryOverlay').classList.add('hidden'); }
 function closeSummaryOutside(e) { if (e.target===el('summaryOverlay')) closeSummary(); }
 
 function renderSummary(presenceMap) {
-  // Build rows: for each valid project, sum present by area
   const rows = [];
   let footSmt=0, footMi=0, footFatp=0, footTotal=0;
 
   for (const projName of CONFIG.VALID_PROJECTS) {
     const actual = presenceMap[projName] || {};
     let smt=0, mi=0, fatp=0;
-
     for (const [dept, count] of Object.entries(actual)) {
       const area = DEPT_AREA[dept];
-      if (!area) continue; // store, hr, it, admin — excluded
+      if (!area) continue;
       if (area==='smt')  smt  += count;
       if (area==='mi')   mi   += count;
       if (area==='fatp') fatp += count;
     }
-
     const total = smt + mi + fatp;
     rows.push({ name: projName, smt, mi, fatp, total });
-    footSmt   += smt;
-    footMi    += mi;
-    footFatp  += fatp;
-    footTotal += total;
+    footSmt+=smt; footMi+=mi; footFatp+=fatp; footTotal+=total;
   }
 
-  // Sort: projects with people first, then alpha
   rows.sort((a,b) => b.total - a.total || a.name.localeCompare(b.name));
 
-  const numCell = (v, extraClass='') => {
+  const numCell = (v) => {
     const cls = v===0 ? 'zero' : 'pos';
-    return `<td class="sum-td-num ${cls} ${extraClass}">${v===0 ? '—' : v}</td>`;
+    return `<td class="sum-td-num ${cls}">${v===0 ? '—' : v}</td>`;
   };
 
   el('sumTableBody').innerHTML = rows.map(r => `
     <tr>
       <td class="sum-td-proj">${r.name}</td>
-      ${numCell(r.smt)}
-      ${numCell(r.mi)}
-      ${numCell(r.fatp)}
+      ${numCell(r.smt)}${numCell(r.mi)}${numCell(r.fatp)}
       <td class="sum-td-total">${r.total===0 ? '—' : r.total}</td>
     </tr>`).join('');
 
@@ -1850,7 +1620,7 @@ function renderSummary(presenceMap) {
       <td class="sum-td-total">${footTotal}</td>
     </tr>`;
 
-  el('sumModalSub').textContent = `${formatDisplayDate(curDateKey)} · SMT = Production SMT + Quality SMT + SMT Testing · MI = Production MI + Quality MI · FATP = all FA lines + Engineering + TRC + Quality Lab`;
+  el('sumModalSub').textContent = `${formatDisplayDate(curDateKey)} · SMT = Production SMT + Quality SMT · MI = Production MI + Quality MI · FATP = all FA lines + SMT Testing + Engineering + TRC + Quality Lab`;
 }
 
 /* ── INIT ── */
